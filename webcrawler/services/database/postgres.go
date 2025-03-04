@@ -28,7 +28,7 @@ func GetDBClient() (*gorm.DB, error) {
 }
 
 func migrateTables(db *gorm.DB) error {
-	return db.AutoMigrate(&models.Book{}, &models.Author{})
+	return db.AutoMigrate(&models.Book{}, &models.Author{}, &models.AuthorBook{})
 }
 
 func CloseDBClient(db *gorm.DB) error {

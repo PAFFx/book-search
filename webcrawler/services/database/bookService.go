@@ -3,6 +3,7 @@ package database
 import (
 	"book-search/webcrawler/models"
 	"errors"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -23,13 +24,21 @@ func StoreBookWithAuthors(db *gorm.DB, bookWithAuthors *models.BookWithAuthors) 
 		return err
 	}
 
-	// Create authors with references to the book
+	// Create authors and author_books
 	for _, authorName := range bookWithAuthors.Authors {
-		author := &models.Author{
-			BookID: bookWithAuthors.Book.ID,
-			Name:   authorName,
+		// Create new author if not exists
+		author := models.Author{Name: strings.ToLower(authorName)}
+		if err := tx.Where(author).FirstOrCreate(&author).Error; err != nil {
+			tx.Rollback()
+			return err
 		}
-		if err := tx.Create(author).Error; err != nil {
+
+		// Create join table record
+		authorBook := models.AuthorBook{
+			AuthorID: author.ID,
+			BookID:   bookWithAuthors.Book.ID,
+		}
+		if err := tx.Create(&authorBook).Error; err != nil {
 			tx.Rollback()
 			return err
 		}

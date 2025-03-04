@@ -11,8 +11,13 @@ type Book struct {
 }
 
 type Author struct {
-	ID     uint   `gorm:"primaryKey"`
-	BookID uint   // Foreign key
-	Book   Book   `gorm:"foreignKey:BookID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
-	Name   string `gorm:"not null"`
+	ID   uint   `gorm:"primaryKey"`
+	Name string `gorm:"unique;not null"`
+}
+
+type AuthorBook struct {
+	AuthorID uint   `gorm:"primaryKey"`
+	BookID   uint   `gorm:"primaryKey"`
+	Author   Author `gorm:"foreignKey:AuthorID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
+	Book     Book   `gorm:"foreignKey:BookID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 }
